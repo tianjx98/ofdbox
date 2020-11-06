@@ -60,6 +60,7 @@
                     <version>3.0.0-M3</version>
                     <configuration>
                         <forkCount>0</forkCount>
+                        <skipTests>true</skipTests>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -86,5 +87,12 @@
 
             </plugins>
         </pluginManagement>
+
     </build>
+    <distributionManagement>
+        <repository>
+            <id>localRepository</id>
+            <url>file:D:/App/Java/apache-maven-3.6.3/repository</url>
+        </repository>
+    </distributionManagement>
 </project>

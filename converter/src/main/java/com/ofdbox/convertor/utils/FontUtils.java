@@ -63,16 +63,16 @@ public class FontUtils {
         if(StringUtils.isBlank(familyName)||StringUtils.isBlank(fontName)||StringUtils.isBlank(fontFilePath)){
             log.error(String.format("添加系统字体映射失败，FamilyName:%s FontName:%s 路径：%s",familyName,fontName,fontFilePath));
         }
-        File file=new File(fontFilePath);
-        if(!file.exists()){
-            log.error(String.format("添加系统字体映射失败，字体文件：%s 不存在",fontFilePath));
-        }
-        if(file.isDirectory()){
-            log.error(String.format("添加系统字体映射失败，%s 不是一个文件",fontFilePath));
-        }
-        if(!file.getName().endsWith("otf")&&!file.getName().endsWith("ttf")&&!file.getName().endsWith("ttc")){
-            log.error(String.format("添加系统字体映射失败，%s 不是一个OpenType字体文件",fontFilePath));
-        }
+        //File file=new File(fontFilePath);
+        //if(!file.exists()){
+        //    log.error(String.format("添加系统字体映射失败，字体文件：%s 不存在",fontFilePath));
+        //}
+        //if(file.isDirectory()){
+        //    log.error(String.format("添加系统字体映射失败，%s 不是一个文件",fontFilePath));
+        //}
+        //if(!file.getName().endsWith("otf")&&!file.getName().endsWith("ttf")&&!file.getName().endsWith("ttc")){
+        //    log.error(String.format("添加系统字体映射失败，%s 不是一个OpenType字体文件",fontFilePath));
+        //}
         synchronized (pathMapping){
             pathMapping.put(familyName+"$$$$"+fontName,fontFilePath);
         }
@@ -92,15 +92,15 @@ public class FontUtils {
         if(fontFilePath==null) {
             return null;
         }
-        File file=new File(fontFilePath);
-        try {
+        //File file=new File(fontFilePath);
+        try (InputStream inputStream = FontUtils.class.getResourceAsStream(fontFilePath)) {
             if(fontFilePath.endsWith("ttc")){
-                TrueTypeCollection trueTypeCollection=new TrueTypeCollection(file);
+                TrueTypeCollection trueTypeCollection=new TrueTypeCollection(inputStream);
                 TrueTypeFont trueTypeFont=trueTypeCollection.getFontByName(fontName);
                 return trueTypeFont;
             }else{
                 OTFParser parser = new OTFParser(false);
-                OpenTypeFont openTypeFont= parser.parse(file);
+                OpenTypeFont openTypeFont= parser.parse(inputStream);
                 return openTypeFont;
             }
 

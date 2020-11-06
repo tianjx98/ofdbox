@@ -152,7 +152,7 @@ public class Ofd2Img {
                     graphics.setColor(Color.BLACK);
                 }
 
-                log.debug("--------------------------------TextObject--------------------------------");
+                //log.debug("--------------------------------TextObject--------------------------------");
 
                 // 准备字体
                 boolean isEmbedded = false;
@@ -184,21 +184,21 @@ public class Ofd2Img {
                     typeFont = getDefaultFont();
                 }
 
-                log.debug("字体是否内嵌：" + isEmbedded);
+                //log.debug("字体是否内嵌：" + isEmbedded);
                 if (isEmbedded) {
                     log.debug("字体是否内嵌：" + typeFont.getTables().stream().map(ttfTable -> {
                         return ttfTable.getTag() + " ";
                     }).collect(Collectors.joining()));
                 }
-                log.debug("字体是否加载失败：" + loadErr);
+                //log.debug("字体是否加载失败：" + loadErr);
                 if (loadErr) {
                     log.debug("原字体：" + loadErr);
                 }
-                try {
-                    log.debug("字体名称：" + typeFont.getName());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                //try {
+                //    log.debug("字体名称：" + typeFont.getName());
+                //} catch (IOException e) {
+                //    e.printStackTrace();
+                //}
 
                 Double[] ctm = nTextObject.getCtm();
                 BoundingBox fontBox = null;
@@ -230,11 +230,11 @@ public class Ofd2Img {
                 for (int i = 0; i < nTextObject.getTextCodes().size(); i++) {
                     NTextCode textCode = nTextObject.getTextCodes().get(i);
                     int deltaOffset = -1;
-                    log.debug("------------------------------------------");
-                    log.debug("TextCode: " + textCode.getContent());
-                    log.debug("DeltaX:" + textCode.getDeltaX());
-                    log.debug("DeltaY:" + textCode.getDeltaY());
-                    log.debug("DeltaY:" + textCode.getDeltaY());
+                    //log.debug("------------------------------------------");
+                    //log.debug("TextCode: " + textCode.getContent());
+                    //log.debug("DeltaX:" + textCode.getDeltaX());
+                    //log.debug("DeltaY:" + textCode.getDeltaY());
+                    //log.debug("DeltaY:" + textCode.getDeltaY());
                     List<Double> deltaX = FormatUtils.parseDelta(textCode.getDeltaX());
                     List<Double> deltaY = FormatUtils.parseDelta(textCode.getDeltaY());
                     Double x = textCode.getX();
@@ -249,13 +249,13 @@ public class Ofd2Img {
                             }
 
                             char c = textCode.getContent().charAt(j);
-                            log.debug(String.format("编码索引 <%s> DeltaX:%s DeltaY:%s", c, x, y));
+                            //log.debug(String.format("编码索引 <%s> DeltaX:%s DeltaY:%s", c, x, y));
                             try {
                                 int gid = typeFont.getUnicodeCmap().getGlyphId((int) c);
                                 typeFont.getFontMatrix();
                                 GlyphData glyphData = typeFont.getGlyph().getGlyph(gid);
                                 Shape shape = glyphData.getPath();
-                                log.debug(String.format("字形Shape %s", shape));
+                                //log.debug(String.format("字形Shape %s", shape));
                                 renderChar(graphics, shape, nTextObject, nTextObject.getCtm(),
                                         nTextObject.getBoundary(), x, y, nTextObject.getSize(), dpi,
                                         fontMatrix);
@@ -275,8 +275,7 @@ public class Ofd2Img {
                                     x += deltaX == null ? 0.0 : deltaX.get(deltaOffset);
                                     y += deltaY == null ? 0.0 : deltaY.get(deltaOffset);
                                 }
-                                log.debug(String.format("字形索引 <%s> DeltaX:%s DeltaY:%s", glyph, x, y));
-                                ;
+                                //log.debug(String.format("字形索引 <%s> DeltaX:%s DeltaY:%s", glyph, x, y));
 
                                 try {
                                     if (loadErr) {
