@@ -1,9 +1,7 @@
 package com.ofdbox.convertor.test.img;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 import javax.imageio.ImageIO;
 
@@ -48,8 +46,11 @@ public class ImgConverterTest {
 
         OFDReader reader = new OFDReader();
         reader.getConfig().setValid(false);
-        OFD ofd = reader.read(new File(basePath + "invoice.ofd"));
-
+        OFD ofd;
+        try (InputStream inputStream = new FileInputStream(new File(basePath + "invoice.ofd"))) {
+            ofd = reader.read(inputStream);
+        }
+        //ofd = reader.read(new File(basePath + "invoice.ofd"));
 
         Ofd2Img ofd2Img = new Ofd2Img();
         ofd2Img.getConfig().setDrawBoundary(false);

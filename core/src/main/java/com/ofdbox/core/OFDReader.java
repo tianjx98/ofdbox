@@ -1,5 +1,14 @@
 package com.ofdbox.core;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+
+import com.ofdbox.core.utils.BeanValidUtils;
+import com.ofdbox.core.utils.OfdXmlUtils;
 import com.ofdbox.core.xmlobj.base.document.CT_TemplatePage;
 import com.ofdbox.core.xmlobj.base.document.XDocument;
 import com.ofdbox.core.xmlobj.base.ofd.NDocBody;
@@ -7,48 +16,60 @@ import com.ofdbox.core.xmlobj.base.ofd.XOFD;
 import com.ofdbox.core.xmlobj.base.page.XPage;
 import com.ofdbox.core.xmlobj.base.pages.NPage;
 import com.ofdbox.core.xmlobj.base.res.XRes;
-import com.ofdbox.core.utils.BeanValidUtils;
-import com.ofdbox.core.utils.OfdXmlUtils;
 import com.ofdbox.core.xmlobj.st.ST_Loc;
+
 import lombok.Data;
-
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import org.ujmp.core.benchmark.LUBenchmarkTask;
 
 //@Slf4j
 public class OFDReader {
     private ParserConfig config = new ParserConfig();
 
-    //    public OFD read(InputStream in){
-//
-//    }
-
-
-    public ParserConfig getConfig() {
-        return config;
+    /**
+     * 读取ofd输入流为一个ofd对象
+     *
+     * @param in ofd文件输入流
+     * @return ofd对象
+     * @throws IOException
+     */
+    public OFD read(InputStream in) throws IOException {
+        FileManager fileManager = new MemoryFileManager();
+        ZipInputStream zipInputStream = new ZipInputStream(in);
+        ZipEntry entry;
+        while ((entry = zipInputStream.getNextEntry()) != null) {
+            if (!entry.isDirectory()) {
+                try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
+                    byte[] buffer = new byte[1024];
+                    int len = 0;
+                    while ((len = zipInputStream.read(buffer)) != -1) {
+                        outStream.write(buffer, 0, len);
+                    }
+                    fileManager.write("/" + entry.getName(), new ByteArrayInputStream(outStream.toByteArray()));
+                }
+            }
+            zipInputStream.closeEntry();
+        }
+        return buildOfd(fileManager);
     }
 
     public OFD read(File file) throws IOException {
+        FileManager fileManager = new MemoryFileManager();
+        ZipFile zipFile = new ZipFile(file);
+        Enumeration<?> entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = (ZipEntry) entries.nextElement();
+            System.out.println(entry.getName());
+            if (!entry.isDirectory()) {
+                fileManager.write("/" + entry.getName(), zipFile.getInputStream(entry));
+            }
+        }
+        zipFile.close();
+        return buildOfd(fileManager);
+    }
+
+    private OFD buildOfd(FileManager fileManager) {
         try {
             OFD ofd = new OFD();
-            ZipFile zipFile = new ZipFile(file);
-            Enumeration<?> entries = zipFile.entries();
-
-            FileManager fileManager = new MemoryFileManager();
-
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
-//                System.out.println(entry.getName());
-                if (!entry.isDirectory()) {
-                    fileManager.write("/" + entry.getName(), zipFile.getInputStream(entry));
-                }
-            }
-            zipFile.close();
-
             ofd.setFileManager(fileManager);
             /*
              * OFD.xml
@@ -145,6 +166,10 @@ public class OFDReader {
         } finally {
 
         }
+    }
+
+    public ParserConfig getConfig() {
+        return config;
     }
 
     private void valid(Object object) {
