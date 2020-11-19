@@ -34,6 +34,7 @@ import com.ofdbox.signature.gm.v4.SES_Signature;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.fontbox.ttf.GlyphData;
 import org.apache.fontbox.ttf.OTFParser;
 import org.apache.fontbox.ttf.TrueTypeFont;
@@ -388,21 +389,21 @@ public class Ofd2Img {
                             char c = textCode.getContent().charAt(j);
                             log.debug(String.format("编码索引 <%s> DeltaX:%s DeltaY:%s", c, x, y));
                             try {
-                                int gid = typeFont.getUnicodeCmap().getGlyphId((int) c);
+                                int gid = typeFont.getUnicodeCmapLookup().getGlyphId((int) c);
                                 typeFont.getFontMatrix();
                                 GlyphData glyphData = typeFont.getGlyph().getGlyph(gid);
-                                Shape shape = glyphData.getPath();
-                                log.debug(String.format("字形Shape %s", shape));
-                                Matrix matrix = chatMatrix(ctText, x, y, ctText.getSize(), fontMatrix, baseMatrix);
-                                renderChar(graphics, shape, ctText, matrix);
+                                if(ObjectUtils.isNotEmpty(glyphData)){
+                                    Shape shape = glyphData.getPath();
+                                    log.debug(String.format("字形Shape %s", shape));
+                                    Matrix matrix = chatMatrix(ctText, x, y, ctText.getSize(), fontMatrix, baseMatrix);
+                                    renderChar(graphics, shape, ctText, matrix);
+                                }
 //                                renderChar(graphics, shape, ctText, ctText.getCtm(),
 //                                        ctText.getBoundary(), x, y, ctText.getSize(), dpi,
 //                                        fontMatrix);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-
-
                             globalPoint++;
                             deltaOffset++;
                         } else {
