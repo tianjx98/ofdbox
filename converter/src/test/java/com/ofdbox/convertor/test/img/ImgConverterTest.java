@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.ofdbox.convertor.img.Ofd2Img;
 import com.ofdbox.convertor.test.utils.PathUtils;
 import com.ofdbox.convertor.utils.seal.SealUtil;
-import com.ofdbox.core.OFD;
+import com.ofdbox.core.model.OFD;
 import com.ofdbox.core.OFDReader;
 
 public class ImgConverterTest {

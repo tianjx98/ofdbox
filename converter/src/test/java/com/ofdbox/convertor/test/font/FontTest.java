@@ -3,8 +3,8 @@ package com.ofdbox.convertor.test.font;
 import com.ofdbox.core.xmlobj.base.res.NFonts;
 import com.ofdbox.core.xmlobj.base.res.XRes;
 import com.ofdbox.core.xmlobj.object.text.CT_Font;
-import com.ofdbox.core.Document;
-import com.ofdbox.core.OFD;
+import com.ofdbox.core.model.document.Document;
+import com.ofdbox.core.model.OFD;
 import com.ofdbox.core.OFDReader;
 import com.ofdbox.core.xmlobj.st.ST_Loc;
 import com.ofdbox.convertor.test.utils.PathUtils;
@@ -44,8 +44,8 @@ public class FontTest {
 //        for(File file:new File(basePath,"font").listFiles()){
 //            if(file.isDirectory()||!file.getName().endsWith("ofd"))
 //                continue;
-//        ofd(reader, new File(basePath, "font/字体测试-数科.ofd"));
-        ofd(reader, new File(basePath, "font/0000000005.ofd"));
+        ofd(reader, new File(basePath, "font/字体测试-数科.ofd"));
+//        ofd(reader, new File(basePath, "font/0000000005.ofd"));
         pdf(new File(basePath, "font/字体测试.pdf"));
 //        pdf(new File(basePath, "font/字体测试-数科.pdf"));
 //        pdf(new File(basePath, "font/字体测试-福昕.pdf"));

@@ -9,6 +9,14 @@ import java.util.zip.ZipInputStream;
 
 import com.ofdbox.core.utils.BeanValidUtils;
 import com.ofdbox.core.utils.OfdXmlUtils;
+import com.ofdbox.core.model.Annotations;
+import com.ofdbox.core.model.OFD;
+import com.ofdbox.core.model.Signatures;
+import com.ofdbox.core.model.document.Document;
+import com.ofdbox.core.model.page.Page;
+import com.ofdbox.core.xmlobj.annotation.NAnnotationPage;
+import com.ofdbox.core.xmlobj.annotation.XAnnotations;
+import com.ofdbox.core.xmlobj.annotation.XPageAnnot;
 import com.ofdbox.core.xmlobj.base.document.CT_TemplatePage;
 import com.ofdbox.core.xmlobj.base.document.XDocument;
 import com.ofdbox.core.xmlobj.base.ofd.NDocBody;
@@ -16,6 +24,11 @@ import com.ofdbox.core.xmlobj.base.ofd.XOFD;
 import com.ofdbox.core.xmlobj.base.page.XPage;
 import com.ofdbox.core.xmlobj.base.pages.NPage;
 import com.ofdbox.core.xmlobj.base.res.XRes;
+import com.ofdbox.core.utils.BeanValidUtils;
+import com.ofdbox.core.utils.OfdXmlUtils;
+import com.ofdbox.core.xmlobj.signature.NSignature;
+import com.ofdbox.core.xmlobj.signature.XSignature;
+import com.ofdbox.core.xmlobj.signature.XSignatures;
 import com.ofdbox.core.xmlobj.st.ST_Loc;
 
 import lombok.Data;
@@ -104,6 +117,10 @@ public class OFDReader {
                         resLoc.setParent(docRoot);
                         XRes xRes = OfdXmlUtils.toObject(fileManager.read(resLoc.getFullLoc()), XRes.class);
                         valid(xRes);
+                        if(xRes.getBaseLoc()==null){
+                            xRes.setBaseLoc(new ST_Loc());
+                            xRes.getBaseLoc().setLoc("./");
+                        }
                         xRes.getBaseLoc().setParent(resLoc);
 
                         document.getRes().add(xRes);
@@ -113,12 +130,19 @@ public class OFDReader {
                     }
                 }
 
+                /*
+                 * 公共资源
+                 * */
                 if (xDocument.getCommonData().getPublicRes() != null) {
                     document.setPublicResList(new ArrayList<>());
                     for (ST_Loc resLoc : xDocument.getCommonData().getPublicRes()) {
                         resLoc.setParent(docRoot);
                         XRes xRes = OfdXmlUtils.toObject(fileManager.read(resLoc.getFullLoc()), XRes.class);
                         valid(xRes);
+                        if(xRes.getBaseLoc()==null){
+                            xRes.setBaseLoc(new ST_Loc());
+                            xRes.getBaseLoc().setLoc("./");
+                        }
                         xRes.getBaseLoc().setParent(resLoc);
 
                         document.getPublicResList().add(xRes);
@@ -146,7 +170,9 @@ public class OFDReader {
                     }
                 }
 
-
+                /*
+                 * Page
+                 * */
                 document.setPages(new ArrayList<>());
                 for (NPage nPage : xDocument.getPages().getList()) {
 
@@ -158,7 +184,57 @@ public class OFDReader {
                     XPage xPage = OfdXmlUtils.toObject(fileManager.read(pageBaseLoc.getFullLoc()), XPage.class, this.config.ignoreNamespace);
 
                     page.setXPage(xPage);
+                    page.setNPage(nPage);
                     document.getPages().add(page);
+                }
+
+                /*
+                 * Annotations
+                 * */
+                ST_Loc annotationsLoc = xDocument.getAnnotations();
+                if (annotationsLoc != null) {
+                    annotationsLoc.setParent(docRoot);
+                    XAnnotations xAnnotations = OfdXmlUtils.toObject(fileManager.read(annotationsLoc.getFullLoc()), XAnnotations.class, this.config.ignoreNamespace);
+
+                    Annotations annotations = new Annotations();
+                    annotations.setXAnnotations(xAnnotations);
+                    annotations.setAnnotationPages(new ArrayList<>());
+                    document.setAnnotations(annotations);
+                    for (NAnnotationPage annotationPage : xAnnotations.getPages()) {
+                        ST_Loc annotationPageLoc = annotationPage.getFileLoc();
+                        annotationPageLoc.setParent(annotationsLoc);
+
+                        XPageAnnot xPageAnnot = OfdXmlUtils.toObject(fileManager.read(annotationPageLoc.getFullLoc()), XPageAnnot.class, this.config.ignoreNamespace);
+                        System.out.println(xPageAnnot);
+
+                        Annotations.AnnotationPage annotationPage1 = new Annotations.AnnotationPage();
+                        annotationPage1.setNAnnotationPage(annotationPage);
+                        annotationPage1.setXPageAnnot(xPageAnnot);
+
+                        annotations.getAnnotationPages().add(annotationPage1);
+                    }
+                }
+
+                /*
+                 * Signatures
+                 * */
+                ST_Loc signaturesLoc = nDocBody.getSignatures();
+                if (signaturesLoc != null) {
+                    XSignatures xSignatures = OfdXmlUtils.toObject(fileManager.read(signaturesLoc.getFullLoc()), XSignatures.class, this.config.ignoreNamespace);
+                    Signatures signatures = new Signatures();
+                    signatures.setXSignatures(xSignatures);
+                    signatures.setSignatureList(new ArrayList<>());
+                    document.setSignatures(signatures);
+                    for (NSignature nSignature : xSignatures.getSignatures()) {
+                        ST_Loc signatureLoc = nSignature.getBaseLoc();
+                        signatureLoc.setParent(signaturesLoc);
+                        XSignature xSignature = OfdXmlUtils.toObject(fileManager.read(signatureLoc.getFullLoc()), XSignature.class, this.config.ignoreNamespace);
+                        Signatures.Signature signature = new Signatures.Signature();
+                        signature.setNSignature(nSignature);
+                        signature.setXSignature(xSignature);
+
+                        signatures.getSignatureList().add(signature);
+                    }
                 }
             }
             return ofd;
