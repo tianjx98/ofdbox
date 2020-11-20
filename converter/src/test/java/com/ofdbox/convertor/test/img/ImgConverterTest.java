@@ -18,20 +18,26 @@ public class ImgConverterTest {
 
     @Test
     public void toImg() throws IOException {
-
+        long start = System.currentTimeMillis();
         OFDReader reader = new OFDReader();
         reader.getConfig().setValid(false);
-        OFD ofd = reader.read(new File(basePath + "发票.ofd"));
-        OFD ofd1 = reader.read(new File(basePath + "旋转测试.ofd"));
+        OFD ofd;
+        //ofd = reader.read(new File(basePath + "发票.ofd"));
+        try (InputStream inputStream=new FileInputStream(basePath + "发票.ofd")) {
+            ofd = reader.read(inputStream);
+        }
+        //OFD ofd1 = reader.read(new File(basePath + "旋转测试.ofd"));
 
         Ofd2Img ofd2Img = new Ofd2Img();
         ofd2Img.getConfig().setDrawBoundary(false);
 
         BufferedImage image = ofd2Img.toImage(ofd.getDocuments().get(0).getPages().get(0), 20);
-        BufferedImage image1 = ofd2Img.toImage(ofd1.getDocuments().get(0).getPages().get(0), 20);
+        //BufferedImage image1 = ofd2Img.toImage(ofd1.getDocuments().get(0).getPages().get(0), 20);
 
         ImageIO.write(image, "JPEG", new FileOutputStream(new File(basePath, "发票.jpg")));
-        ImageIO.write(image1, "JPEG", new FileOutputStream(new File(basePath, "旋转测试.jpg")));
+        long time = System.currentTimeMillis() - start;
+        System.out.println("用时: " + time + " ms");
+        //ImageIO.write(image1, "JPEG", new FileOutputStream(new File(basePath, "旋转测试.jpg")));
 
     }
 

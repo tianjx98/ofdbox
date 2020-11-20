@@ -79,9 +79,9 @@ public class FontTest {
 
                         PDDocument doc=new PDDocument();
 
-                        System.out.println(openTypeFont.getVersion()    );
+                        //System.out.println(openTypeFont.getVersion()    );
                         openTypeFont.getOS2Windows();
-                        System.out.println(openTypeFont.getGlyph());
+                        //System.out.println(openTypeFont.getGlyph());
 //                        OS2WindowsMetricsTable os2=new OS2WindowsMetricsTable(openTypeFont);
 //                        PDFont pdFont=PDType0Font.loadVertical(doc,openTypeFont,false);
 

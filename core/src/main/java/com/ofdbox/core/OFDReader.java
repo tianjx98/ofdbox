@@ -71,7 +71,7 @@ public class OFDReader {
         Enumeration<?> entries = zipFile.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = (ZipEntry) entries.nextElement();
-            System.out.println(entry.getName());
+            //System.out.println(entry.getName());
             if (!entry.isDirectory()) {
                 fileManager.write("/" + entry.getName(), zipFile.getInputStream(entry));
             }

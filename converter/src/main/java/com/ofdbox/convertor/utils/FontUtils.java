@@ -79,7 +79,11 @@ public class FontUtils {
         }
     }
 
+    public static final Map<String, TrueTypeFont> fontMap = new HashMap<>();
     public static TrueTypeFont loadSystemFont(String familyName, String fontName) {
+        if(familyName==null){
+            familyName=fontName;
+        }
         if (StringUtils.isBlank(familyName) || StringUtils.isBlank(fontName)) {
             log.debug("familyName: {}, fontName: {}", familyName, fontName);
             return null;
@@ -96,8 +100,20 @@ public class FontUtils {
         }
         // File file=new File(fontFilePath);
         log.debug("字体文件({})路径: {}", familyName + "$$$$" + fontName, fontFilePath);
+
+        TrueTypeFont trueTypeFont = fontMap.get(fontFilePath);
+        if (trueTypeFont == null) {
+            trueTypeFont = getFont(fontFilePath, fontName);
+        }
+        if (trueTypeFont != null) {
+            fontMap.put(fontFilePath, trueTypeFont);
+        }
+        return trueTypeFont;
+    }
+
+    public static TrueTypeFont getFont(String fontFilePath, String fontName) {
         try (InputStream inputStream = FontUtils.class.getResourceAsStream(fontFilePath)) {
-            log.debug("font inputStream: {}", inputStream);
+            //log.debug("font inputStream: {}", inputStream);
             if (fontFilePath.endsWith("ttc")) {
                 TrueTypeCollection trueTypeCollection = new TrueTypeCollection(inputStream);
                 TrueTypeFont trueTypeFont = trueTypeCollection.getFontByName(fontName);
